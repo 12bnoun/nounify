@@ -223,7 +223,7 @@ class Paint extends React.Component {
         }
 
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      });
+      },{ crossOrigin: 'anonymous' });
     } catch(error) {
       console.log(error);
     }
