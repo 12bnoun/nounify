@@ -21,7 +21,7 @@ const ButtonFlip = styled.button`
   /*border: 1px solid props => props.color ? "#e0c3fc" : "#dbb6c8" };*/
   &:hover {
     /*background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);*/
-    background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)
+    /*background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)*/
   }
 
   @media screen and (max-width:480px) {

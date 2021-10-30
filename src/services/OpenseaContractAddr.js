@@ -5,6 +5,7 @@ const ContractAddrList = {
   coolcats: "0x1A92f7381B9F03921564a437210bB9396471050C",
   blitnauts: "0x448f3219CF2A23b0527A7a0158e7264B87f635Db",
   deadfellas: "0x2acAb3DEa77832C09420663b0E1cB386031bA17B",
+  doodles: "0x8a90cab2b38dba80c64b7734e58ee1db38b8992e",
 }
 
 export default ContractAddrList;

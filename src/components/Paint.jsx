@@ -79,17 +79,29 @@ class Paint extends React.Component {
     this.setState({
       collection: collection
     });
+
+    const { id } = this.state;
+    this.updateBg(collection, id);
   }
 
   flipBg() {
 
     const { bgFlip, canvas, bgUrl } = this.state;
+    const { width } = window.screen;
     fabric.Image.fromURL(bgUrl, (img, isError) => {
 
       this.setState({ bgFlip: !bgFlip });
 
       /* Flip img and update background */
       img.set({ flipX: !bgFlip });
+      if (this.isMobile()) {
+        img.set({
+          top: 0,
+          left: 0,
+          scaleX: width/img.width,
+          scaleY: width/img.height,
+        });
+      }
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
     }, { crossOrigin: 'anonymous' });
   }
@@ -154,7 +166,6 @@ class Paint extends React.Component {
 
         canvas.setDimensions({ width: width, height: width });
       } else {
-        console.log(`width 9999`, img.width);
         canvas.setDimensions({ width: img.width, height: img.height });
       }
 
@@ -181,7 +192,10 @@ class Paint extends React.Component {
     const { canvas } = this.state;
     const { width } = window.screen;
 
-    if (collection === 'collection') {
+    console.log(collection, value);
+
+    if (collection == 'punks' && value == 10000) {
+      alert(`not found`);
       return;
     }
 
@@ -205,7 +219,6 @@ class Paint extends React.Component {
       fabric.Image.fromURL(image_preview, (img, isError) => {
 
         if (isError) {
-          img = new Image();
           console.log("error is found", image_preview);
         }
 
@@ -245,7 +258,7 @@ class Paint extends React.Component {
             <Palette chooseColor={(filename) => this.switchGlasses(filename)}/>
             <FlipWrapper>
               <div onClick={() => this.flipBg()}>
-                <ButtonHover buttonText="Flip Background" />
+                <ButtonHover buttonText="Flip Image" />
               </div>
               <div onClick={() => this.flipGlasses()}>
                 <ButtonHover buttonText="Flip Glasses" />
