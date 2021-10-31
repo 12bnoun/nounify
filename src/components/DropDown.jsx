@@ -59,7 +59,7 @@ const ListItem = styled("li")`
   }
 `;
 
-const options = ["Punks", "Toadz", "BAYC", "Coolcats", "Deadfellas", "Blitnauts", "Doodles"];
+const options = ["Punks", "Toadz", "BAYC", "Creature", "Groupies", "Metahero", "Coolcats", "Deadfellas", "Doodles"];
 
 export default function DropDown(props) {
   const [isOpen, setIsOpen] = useState(false);
