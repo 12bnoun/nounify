@@ -75,9 +75,9 @@ class SearchGroup extends React.Component {
       <div>
         <SearchWrapper>
         <DropDown onCollectionChange={(pfp) => collection(pfp)}/>
-        <Search onChange={(event) => id(event.target.value)} defaultValue="9999" />
+        <Search onChange={(event) => id(event.target.value)} placeholder="token id" />
         <SearchButton>
-          <FloatB onClick={() => search()}>search&nbsp;<i className="gg-search"></i></FloatB>
+          <FloatB onClick={() => search()}>search</FloatB>
         </SearchButton>
         </SearchWrapper>
       </div>
