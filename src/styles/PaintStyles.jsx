@@ -52,6 +52,7 @@ const ToolWrapper = styled.div`
 `;
 
 const PaintCanvasWrapper = styled.div`
+  margin: auto;
 `;
 
 const CanvasWrapper = styled.div`
@@ -87,7 +88,9 @@ const ButtonFlipE = styled.div`
     background: #e0c3fc;
   }
 `
-
+const ButtonContainer = styled.div`
+  display: flex;
+`;
 
 export {
   PaintCanvas,
@@ -97,4 +100,5 @@ export {
   PaintCanvasWrapper,
   CanvasWrapper,
   ButtonFlipE,
+  ButtonContainer
 }

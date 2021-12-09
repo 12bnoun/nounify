@@ -13,6 +13,8 @@ import ButtonHover from './ButtonHover';
 import notfound from './notfound.png';
 import default_lastpunk from './9999.png';
 
+import FileUploader from './FileUploader.jsx';
+
 import { PaintCanvas,
   ButtonFlip,
   PaintToolWrapper,
@@ -20,6 +22,7 @@ import { PaintCanvas,
   PaintCanvasWrapper,
   CanvasWrapper,
   ButtonFlipE,
+  ButtonContainer,
 } from '../styles/PaintStyles';
 
 
@@ -53,6 +56,8 @@ class Paint extends React.Component {
       bgUrl: default_lastpunk,
       downloadPng: false,
       canvasDataURL: null,
+      uploadedImageFile: null,
+      uploadedBgURL: null,
     };
 
     this.flipBg = this.flipBg.bind(this);
@@ -242,6 +247,70 @@ class Paint extends React.Component {
     }
   }
 
+  uploadImageFile = (image) => {
+    this.setState({
+      uploadedImageFile: image,
+      uploadedBgURL: image,
+    });
+
+    const { canvas } = this.state;
+    const { width } = window.screen;
+    try {
+      fabric.Image.fromURL(
+        image,
+        (img, isError) => {
+          if (isError) {
+            console.log('error is found', image);
+          }
+
+          let resizeRatio;
+
+          if (this.isMobile()) {
+            resizeRatio = calculateAspectRatioFit(
+              img.width,
+              img.height,
+              width,
+              width
+            );
+            img.set({
+              top: 0,
+              left: 0,
+              scaleX: resizeRatio,
+              scaleY: resizeRatio,
+            });
+
+            canvas.setDimensions({
+              width: resizeRatio * img.width,
+              height: resizeRatio * img.height,
+            });
+          } else {
+            resizeRatio = calculateAspectRatioFit(
+              img.width,
+              img.height,
+              500,
+              500
+            );
+            img.set({
+              top: 0,
+              left: 0,
+              scaleX: resizeRatio,
+              scaleY: resizeRatio,
+            });
+            canvas.setDimensions({
+              width: resizeRatio * img.width,
+              height: resizeRatio * img.height,
+            });
+          }
+
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+        },
+        { crossOrigin: 'anonymous' }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   render() {
 
     return (
@@ -252,7 +321,12 @@ class Paint extends React.Component {
         <PaintToolWrapper>
           <PaintCanvasWrapper>
             <PaintCanvas id="c"></PaintCanvas>
-            <ButtonFlip onClick={() => this.downloadPng()}><i className="gg-software-download"></i>&nbsp;&nbsp;Save as</ButtonFlip>
+            <ButtonContainer>
+              <ButtonFlip onClick={() => this.downloadPng()}>
+                <i className="gg-software-download"></i>&nbsp;&nbsp;Save as
+              </ButtonFlip>
+              <FileUploader uploadImageFile={this.uploadImageFile} />
+            </ButtonContainer>
           </PaintCanvasWrapper>
           <ToolWrapper>
             <Palette chooseColor={(filename) => this.switchGlasses(filename)}/>
@@ -272,3 +346,7 @@ class Paint extends React.Component {
 }
 
 export default Paint;
+
+function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+  return Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+}
