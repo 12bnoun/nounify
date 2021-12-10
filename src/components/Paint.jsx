@@ -57,7 +57,6 @@ class Paint extends React.Component {
       downloadPng: false,
       canvasDataURL: null,
       uploadedImageFile: null,
-      uploadedBgURL: null,
     };
 
     this.flipBg = this.flipBg.bind(this);
@@ -76,13 +75,14 @@ class Paint extends React.Component {
 
   onIdChange(value) {
     this.setState({
-      id: value
+      id: value,
     });
   }
 
   onCollectionChange(collection) {
     this.setState({
-      collection: collection
+      collection: collection,
+      uploadedImageFile: null 
     });
 
     const { id } = this.state;
@@ -91,22 +91,68 @@ class Paint extends React.Component {
 
   flipBg() {
 
-    const { bgFlip, canvas, bgUrl } = this.state;
+    const { bgFlip, canvas, bgUrl, uploadedImageFile } = this.state;
     const { width } = window.screen;
     fabric.Image.fromURL(bgUrl, (img, isError) => {
 
       this.setState({ bgFlip: !bgFlip });
 
-      /* Flip img and update background */
-      img.set({ flipX: !bgFlip });
-      if (this.isMobile()) {
-        img.set({
-          top: 0,
-          left: 0,
-          scaleX: width/img.width,
-          scaleY: width/img.height,
-        });
+        /* Flip img and update background */
+        img.set({ flipX: !bgFlip });
+
+        // If flipping user image background, must resize 
+      if (uploadedImageFile) {
+        let resizeRatio;
+
+        if (this.isMobile()) {
+          resizeRatio = calculateAspectRatioFit(
+            img.width,
+            img.height,
+            width,
+            width
+          );
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: resizeRatio,
+            scaleY: resizeRatio,
+          });
+
+          canvas.setDimensions({
+            width: resizeRatio * img.width,
+            height: resizeRatio * img.height,
+          });
+        } else {
+          resizeRatio = calculateAspectRatioFit(
+            img.width,
+            img.height,
+            500,
+            500
+          );
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: resizeRatio,
+            scaleY: resizeRatio,
+          });
+          canvas.setDimensions({
+            width: resizeRatio * img.width,
+            height: resizeRatio * img.height,
+          });
+        }
+      } else { 
+        //  flipping NFT picture
+        if (this.isMobile()) {
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: width/img.width,
+            scaleY: width/img.height,
+          });
+        }
       }
+    
+    
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
     }, { crossOrigin: 'anonymous' });
   }
@@ -145,6 +191,7 @@ class Paint extends React.Component {
   }
 
   search() {
+    this.setState({ uploadedImageFile: null });
     const { collection, id } = this.state;
     this.updateBg(collection, id);
   }
@@ -250,7 +297,7 @@ class Paint extends React.Component {
   uploadImageFile = (image) => {
     this.setState({
       uploadedImageFile: image,
-      uploadedBgURL: image,
+      bgUrl: image,
     });
 
     const { canvas } = this.state;
@@ -311,6 +358,23 @@ class Paint extends React.Component {
     }
   };
 
+  resetGlassesPosition = () => {
+    const { canvas } = this.state;
+
+    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
+
+      let item = oImg;
+      if (canvas.item(0)) {
+
+        canvas.remove(canvas.item(0));
+
+      }
+
+      canvas.add(item);
+    });
+
+  }
+
   render() {
 
     return (
@@ -329,7 +393,7 @@ class Paint extends React.Component {
             </ButtonContainer>
           </PaintCanvasWrapper>
           <ToolWrapper>
-            <Palette chooseColor={(filename) => this.switchGlasses(filename)}/>
+            <Palette chooseColor={(filename) => this.switchGlasses(filename)} resetGlassesPosition={() => this.resetGlassesPosition()}/>
             <FlipWrapper>
               <div onClick={() => this.flipBg()}>
                 <ButtonHover buttonText="Flip Image" />

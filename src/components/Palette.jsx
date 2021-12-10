@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import paletteMap from './PaletteMap.js';
 
+
 const PaletteWrapper = styled.div`
   height: 200px;
   width: 200px;
@@ -68,6 +69,26 @@ const PaletteBody = styled.div`
   flex-wrap: wrap;
 `;
 
+const ButtonFlip = styled.button`
+  background: #4B34DD;
+  padding: 5px 10px 5px 10px;
+  margin-left: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: 'Overpass', sans-serif;
+  border: 0px;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  /*border: 1px solid props => props.color ? "#e0c3fc" : "#dbb6c8" };*/
+  &:hover {
+    /*background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);*/
+    /*background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)*/
+  }
+`;
+
 function ColorCovered({ chooseColor }) {
   return (
       paletteMap.map(({fileName, first, second, third, fourth}) => {
@@ -84,14 +105,17 @@ class Palette extends React.Component {
 
   render() {
 
-    const { chooseColor } = this.props;
+    const { chooseColor, resetGlassesPosition } = this.props;
     return (
       <div>
         <PaletteWrapper>
           <PaletteHeader>Select glasses</PaletteHeader>
           <PaletteBody>
             <ColorCovered chooseColor={chooseColor} />
+            <ButtonFlip onClick={()=> resetGlassesPosition()}>Reset</ButtonFlip>
           </PaletteBody>
+         
+
         </PaletteWrapper>
       </div>
     );
