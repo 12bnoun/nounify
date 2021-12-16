@@ -34,7 +34,6 @@ const PaintToolWrapper = styled.div`
   display: flex;
   padding: 20px 15px;
   border-radius: 10px;
-  margin-top: 20px;
   z-index: 2;
   @media (max-width: 768px) {
     flex-direction: column;
@@ -46,10 +45,14 @@ const PaintToolWrapper = styled.div`
 
 const ToolWrapper = styled.div`
   margin-left: 20px;
+  @media (max-width: 768px) {
+    margin-left: 5px;
+  }
 `;
 
 const PaintCanvasWrapper = styled.div`
   margin: auto;
+  justify-content: center;
 `;
 
 const CanvasWrapper = styled.div`
@@ -59,8 +62,16 @@ const CanvasWrapper = styled.div`
   align-items: center;
   flex-direction: column;
   @media (max-width: 768px) {
-    margin-top: 0px;
+    margin-top: 10px;
   }
+`;
+
+const CanvasContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
 `;
 
 const ButtonFlipE = styled.div`
@@ -109,5 +120,6 @@ export {
   CanvasWrapper,
   ButtonFlipE,
   ButtonContainer,
-  ContentWrapper
+  ContentWrapper,
+  CanvasContainer
 }
