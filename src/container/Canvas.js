@@ -5,6 +5,7 @@ import Paint from '../components/Paint';
 import bg from '../components/bg.png';
 
 const Nouns = styled.div`
+  overflow-x: hidden;
   height: 100vh;
   width: 100vw;
   display: flex;

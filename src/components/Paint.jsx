@@ -25,7 +25,8 @@ import { PaintCanvas,
   CanvasWrapper,
   ButtonFlipE,
   ButtonContainer,
-  ContentWrapper
+  ContentWrapper,
+  CanvasContainer
 } from '../styles/PaintStyles';
 
 
@@ -95,7 +96,7 @@ class Paint extends React.Component {
   flipBg() {
 
     const { bgFlip, canvas, bgUrl, uploadedImageFile } = this.state;
-    const { width } = window.screen;
+    const { width, height } = window.screen;
     fabric.Image.fromURL(bgUrl, (img, isError) => {
 
       this.setState({ bgFlip: !bgFlip });
@@ -112,7 +113,7 @@ class Paint extends React.Component {
             img.width,
             img.height,
             width,
-            width
+            height * 0.6
           );
           img.set({
             top: 0,
@@ -129,8 +130,8 @@ class Paint extends React.Component {
           resizeRatio = calculateAspectRatioFit(
             img.width,
             img.height,
-            500,
-            500
+            width * 0.6,
+            height * 0.6
           );
           img.set({
             top: 0,
@@ -249,7 +250,7 @@ class Paint extends React.Component {
 
     console.log(collection, value);
 
-    if (collection == 'punks' && value == 10000) {
+    if (collection === 'punks' && value === 10000) {
       alert(`not found`);
       return;
     }
@@ -304,7 +305,7 @@ class Paint extends React.Component {
     });
 
     const { canvas } = this.state;
-    const { width } = window.screen;
+    const { width, height } = window.screen;
     try {
       fabric.Image.fromURL(
         image,
@@ -320,7 +321,7 @@ class Paint extends React.Component {
               img.width,
               img.height,
               width,
-              width
+              height * 0.6
             );
             img.set({
               top: 0,
@@ -337,8 +338,8 @@ class Paint extends React.Component {
             resizeRatio = calculateAspectRatioFit(
               img.width,
               img.height,
-              500,
-              500
+              width * 0.6,
+              height * 0.6
             );
             img.set({
               top: 0,
@@ -388,7 +389,9 @@ class Paint extends React.Component {
         <ContentWrapper>
         <PaintToolWrapper>
           <PaintCanvasWrapper>
-            <PaintCanvas id="c"></PaintCanvas>
+            <CanvasContainer>
+              <PaintCanvas id="c"></PaintCanvas>
+            </CanvasContainer>
             <ButtonContainer>
               <ButtonFlip onClick={() => this.downloadPng()}>
                 <i className="gg-software-download"></i>&nbsp;&nbsp;Save as
