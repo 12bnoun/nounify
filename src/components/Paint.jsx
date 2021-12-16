@@ -304,7 +304,7 @@ class Paint extends React.Component {
     });
 
     const { canvas } = this.state;
-    const { width } = window.screen;
+    const { width, height } = window.screen;
     try {
       fabric.Image.fromURL(
         image,
@@ -337,8 +337,8 @@ class Paint extends React.Component {
             resizeRatio = calculateAspectRatioFit(
               img.width,
               img.height,
-              500,
-              500
+              width * 0.6,
+              height * 0.6
             );
             img.set({
               top: 0,

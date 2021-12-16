@@ -36,7 +36,6 @@ const PaintToolWrapper = styled.div`
   border-radius: 10px;
   margin-top: 20px;
   z-index: 2;
-  background: #FBFBFA;
   @media (max-width: 768px) {
     flex-direction: column;
     padding: 0px;
@@ -54,10 +53,14 @@ const PaintCanvasWrapper = styled.div`
 `;
 
 const CanvasWrapper = styled.div`
+  margin-top: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  @media (max-width: 768px) {
+    margin-top: 0px;
+  }
 `;
 
 const ButtonFlipE = styled.div`
