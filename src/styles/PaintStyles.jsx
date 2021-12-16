@@ -32,11 +32,9 @@ const ButtonFlip = styled.button`
 
 const PaintToolWrapper = styled.div`
   display: flex;
-  background: white;
   padding: 20px 15px;
   border-radius: 10px;
   margin-top: 20px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
   z-index: 2;
   background: #FBFBFA;
   @media (max-width: 768px) {
@@ -92,6 +90,13 @@ const ButtonContainer = styled.div`
   display: flex;
 `;
 
+const ContentWrapper = styled.div`
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 50px;
+`;
+
 export {
   PaintCanvas,
   ButtonFlip,
@@ -100,5 +105,6 @@ export {
   PaintCanvasWrapper,
   CanvasWrapper,
   ButtonFlipE,
-  ButtonContainer
+  ButtonContainer,
+  ContentWrapper
 }

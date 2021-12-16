@@ -15,6 +15,8 @@ import default_lastpunk from './9999.png';
 
 import FileUploader from './FileUploader.jsx';
 
+import DragAndDropSection from './DragAndDropSection.jsx';
+
 import { PaintCanvas,
   ButtonFlip,
   PaintToolWrapper,
@@ -23,6 +25,7 @@ import { PaintCanvas,
   CanvasWrapper,
   ButtonFlipE,
   ButtonContainer,
+  ContentWrapper
 } from '../styles/PaintStyles';
 
 
@@ -382,6 +385,7 @@ class Paint extends React.Component {
         <ZDiv>
           <Search search={() => this.search()} collection={(collection) => this.onCollectionChange(collection)} id={(value) => this.onIdChange(value)}/>
         </ZDiv>
+        <ContentWrapper>
         <PaintToolWrapper>
           <PaintCanvasWrapper>
             <PaintCanvas id="c"></PaintCanvas>
@@ -404,6 +408,9 @@ class Paint extends React.Component {
             </FlipWrapper>
           </ToolWrapper>
         </PaintToolWrapper>
+        {/* Drag n Drop only shown on Desktop */}
+        <DragAndDropSection uploadImageFile={this.uploadImageFile} /> 
+        </ContentWrapper>
       </CanvasWrapper>
     )
   }
