@@ -564,11 +564,11 @@ const Paint = () => {
 
     oldGlasses = activeGlasses[0];
 
-    // if (canvas.getActiveObjects().length > 0) {
-    //   oldGlasses = activeGlasses[0];
-    // } else {
-    //   oldGlasses = canvas.item(0) ? canvas.item(0) : null;
-    // }
+    if (canvas.getActiveObjects().length > 0) {
+      oldGlasses = activeGlasses[0];
+    } else {
+      oldGlasses = canvas.item(0);
+    }
 
     const { top, left, scaleX, scaleY, flipX, angle, aCoords } = oldGlasses;
 
