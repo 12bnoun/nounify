@@ -1,43 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
-import '../App.css';
+import React from 'react';
 import styled from 'styled-components';
 import { fabric } from 'fabric';
 import PFPService from '../services/PFPService.js';
 
-import glassMap, { glassesArray } from './glasses/GetGlasses.js';
-import redGlasses from './glasses/glasses-red.svg';
+import glassMap from './glasses/GetGlasses.js';
 
 import Palette from './Palette';
 import Search from './SearchGroup';
 
-import IconButton from './IconButton.jsx';
+import ButtonHover from './ButtonHover';
 
-import default_background from './default.png';
-import not_found from './notfound.png';
+import notfound from './notfound.png';
+import default_lastpunk from './9999.png';
 
-import GlassesSvgString from './GlassesSvgString.jsx';
+import FileUploader from './FileUploader.jsx';
 
 import DragAndDropSection from './DragAndDropSection.jsx';
 
-import { calculateAspectRatioFit } from '../utils/utils';
-import ColorSelectors from './ColorSelectors';
-import EyedropperTool from './EyedropperTool';
-
-import { BsTrash } from 'react-icons/bs';
-import { IoDuplicateOutline } from 'react-icons/io5';
-import { CgEditFlipH } from 'react-icons/cg';
-
-import {
-  PaintCanvas,
+import { PaintCanvas,
   ButtonFlip,
   PaintToolWrapper,
   ToolWrapper,
   PaintCanvasWrapper,
   CanvasWrapper,
+  ButtonFlipE,
   ButtonContainer,
   ContentWrapper,
-  CanvasContainer,
+  CanvasContainer
 } from '../styles/PaintStyles';
+
 
 const ZDiv = styled.div`
   z-index: 3;
@@ -46,443 +37,218 @@ const ZDiv = styled.div`
 const FlipWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  @media (max-width: 768px) {
-    padding: 10px;
-  }
 `;
 
-const Divider = styled.hr`
-  margin-top: 20px;
-  padding: 0px;
-  width: 200px;
-  background-color: #dbb6c8;
-  height: 1px;
-  border: none;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
-`;
-
-const LoadingOverlay = styled.div`
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  margin-top: -30px;
-  padding: 0px;
-  background-color: rgba(0, 0, 0, 0.33);
-  z-index: 999999999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  @media (max-width: 768px) {
-    margin-top: -30px;
-    overflow: hidden;
-  }
-`;
-
-const LoadingContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 2rem;
+const IconWrapper = styled.div`
+  background: pink;
+  padding: 10px 10px;
 `;
 
 const MOBILE_MAX_WIDTH = 738;
 
-const glassesEditOptions = {
-  borderColor: 'red',
-  cornerColor: 'red',
-  cornerSize: 10,
-  transparentCorners: true,
-};
+class Paint extends React.Component {
 
-const Paint = () => {
-  const [bgFlip, setBgFlip] = useState(false);
-  const [canvas, setCanvas] = useState(null);
-  const [glassFlip, setGlassesFlip] = useState(false);
-  const [collection, setCollection] = useState('UPLOAD');
-  const [id, setId] = useState('1');
-  const [bgUrl, setBgUrl] = useState(default_background);
-  // const [downloadPng, setDownloadPng] = useState(false);
-  // const [canvasDataURL, setCanvasDataURL] = useState(null);
-  const [uploadedImageFile, setUploadedImageFile] = useState(null);
-  const [activeSelectedItem, setActiveSelectedItem] = useState(null);
-  const [eyeDropperVisible, setEyeDropperVisible] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [customRgbColor, setCustomRgbColor] = useState('rgb(0, 0, 0)');
+  constructor(props) {
+    super(props);
 
-  const [loading, setLoading] = useState(false);
-  const [loadingIcon, setLoadingIcon] = useState(redGlasses);
+    this.state = {
+      bgFlip: false,
+      canvas : null,
+      glassFlip: false,
+      collection: 'punks',
+      id: '9999',
+      bgUrl: default_lastpunk,
+      downloadPng: false,
+      canvasDataURL: null,
+      uploadedImageFile: null,
+    };
 
-  const colorCursorRef = useRef();
+    this.flipBg = this.flipBg.bind(this);
+    this.flipGlasses = this.flipGlasses.bind(this);
+    this.switchGlasses = this.switchGlasses.bind(this);
 
-  const RESIZERATIO = 0.55;
-  const MOBILERESIZERATIO = 0.65;
+    this.onIdChange = this.onIdChange.bind(this);
+    this.onCollectionChange = this.onCollectionChange.bind(this);
+    this.search = this.search.bind(this);
+    this.downloadPng = this.downloadPng.bind(this);
+  }
 
-  const switchGlasses = (fileName) => {
-    // this.renderGlasses(glassMap.get(fileName));
+  switchGlasses(fileName) {
+    this.renderGlasses(glassMap.get(fileName))
+  }
 
-    let activeGlasses = canvas.getActiveObjects();
+  onIdChange(value) {
+    this.setState({
+      id: value,
+    });
+  }
 
-    if (canvas.getObjects().length === 1) {
-      renderGlasses(glassMap.get(fileName));
-    } else if (canvas.getActiveObjects().length > 0) {
-      let obj = activeGlasses[0];
-      const {
-        top,
-        left,
-        height,
-        width,
-        scaleX,
-        scaleY,
-        flipX,
-        aCoords,
-        angle,
-      } = obj;
-      //  canvas.remove(obj);
+  onCollectionChange(collection) {
+    this.setState({
+      collection: collection,
+      uploadedImageFile: null 
+    });
 
-      fabric.Image.fromURL(glassMap.get(fileName), (oImg) => {
-        let item = oImg;
-        item = oImg.set({
-          flipX: flipX,
-          top: top,
-          left: left,
-          height: height,
-          width: width,
-          scaleX: scaleX,
-          scaleY: scaleY,
-          aCoords: aCoords,
-          angle: angle,
-          ...glassesEditOptions,
-        });
-        canvas.remove(obj);
+    const { id } = this.state;
+    this.updateBg(collection, id);
+  }
 
-        canvas.add(item);
-        canvas.setActiveObject(item);
-        canvas.renderAll();
-      });
-    }
-  };
+  flipBg() {
 
-  const onIdChange = (value) => {
-    setId(value);
-  };
-
-  const onCollectionChange = (collection) => {
-    setCollection(collection);
-    setUploadedImageFile(null);
-
-    if (collection !== 'UPLOAD') {
-      updateBg(collection, id);
-    } else {
-      const { width, height } = window.screen;
-      setBgUrl(default_background);
-      let resizeRatio;
-      fabric.Image.fromURL(default_background, (img, isError) => {
-        if (isMobile()) {
-          resizeRatio = calculateAspectRatioFit(
-            img.width,
-            img.height,
-            width,
-            height * MOBILERESIZERATIO
-          );
-
-          img.set({
-            top: 0,
-            left: 0,
-            scaleX: resizeRatio,
-            scaleY: resizeRatio,
-          });
-
-          canvas.setDimensions({
-            width: resizeRatio * img.width,
-            height: resizeRatio * img.height,
-          });
-        } else {
-          resizeRatio = calculateAspectRatioFit(
-            img.width,
-            img.height,
-            width * RESIZERATIO,
-            height * RESIZERATIO
-          );
-          img.set({
-            top: 0,
-            left: 0,
-            scaleX: resizeRatio,
-            scaleY: resizeRatio,
-          });
-          canvas.setDimensions({
-            width: resizeRatio * img.width,
-            height: resizeRatio * img.height,
-          });
-        }
-
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      });
-    }
-  };
-
-  const flipBg = () => {
-    // const { bgFlip, canvas, bgUrl, uploadedImageFile } = this.state;
+    const { bgFlip, canvas, bgUrl, uploadedImageFile } = this.state;
     const { width, height } = window.screen;
-    fabric.Image.fromURL(
-      bgUrl,
-      (img, isError) => {
-        setBgFlip(!bgFlip);
+    fabric.Image.fromURL(bgUrl, (img, isError) => {
+
+      this.setState({ bgFlip: !bgFlip });
 
         /* Flip img and update background */
         img.set({ flipX: !bgFlip });
 
+        // If flipping user image background, must resize 
+      if (uploadedImageFile) {
         let resizeRatio;
 
-        // If flipping user image background, must resize
-        if (uploadedImageFile || bgUrl === default_background) {
-          if (isMobile()) {
-            resizeRatio = calculateAspectRatioFit(
-              img.width,
-              img.height,
-              width,
-              height * MOBILERESIZERATIO
-            );
-            img.set({
-              top: 0,
-              left: 0,
-              scaleX: resizeRatio,
-              scaleY: resizeRatio,
-            });
+        if (this.isMobile()) {
+          resizeRatio = calculateAspectRatioFit(
+            img.width,
+            img.height,
+            width,
+            height * 0.6
+          );
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: resizeRatio,
+            scaleY: resizeRatio,
+          });
 
-            canvas.setDimensions({
-              width: resizeRatio * img.width,
-              height: resizeRatio * img.height,
-            });
-          } else {
-            resizeRatio = calculateAspectRatioFit(
-              img.width,
-              img.height,
-              width * RESIZERATIO,
-              height * RESIZERATIO
-            );
-            img.set({
-              top: 0,
-              left: 0,
-              scaleX: resizeRatio,
-              scaleY: resizeRatio,
-            });
-            canvas.setDimensions({
-              width: resizeRatio * img.width,
-              height: resizeRatio * img.height,
-            });
-          }
+          canvas.setDimensions({
+            width: resizeRatio * img.width,
+            height: resizeRatio * img.height,
+          });
         } else {
-          //  flipping NFT picture
-          if (isMobile()) {
-            img.set({
-              top: 0,
-              left: 0,
-              scaleX: width / img.width,
-              scaleY: width / img.height,
-            });
-          }
+          resizeRatio = calculateAspectRatioFit(
+            img.width,
+            img.height,
+            width * 0.6,
+            height * 0.6
+          );
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: resizeRatio,
+            scaleY: resizeRatio,
+          });
+          canvas.setDimensions({
+            width: resizeRatio * img.width,
+            height: resizeRatio * img.height,
+          });
         }
+      } else { 
+        //  flipping NFT picture
+        if (this.isMobile()) {
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: width/img.width,
+            scaleY: width/img.height,
+          });
+        }
+      }
+    
+    
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+    }, { crossOrigin: 'anonymous' });
+  }
 
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      },
-      { crossOrigin: 'anonymous' }
-    );
-  };
+  renderGlasses(fileName) {
 
-  const renderGlasses = (fileName) => {
+    const { canvas, glassFlip } = this.state;
+
     fabric.Image.fromURL(fileName, (oImg) => {
+
       let item = oImg;
-      if (canvas && canvas.item(0)) {
-        const { top, left, scaleX, scaleY, flipX, aCoords, angle } =
-          canvas.item(0);
+      if (canvas.item(0)) {
+
+        const { top, left } = canvas.item(0);
         canvas.remove(canvas.item(0));
 
-        item = oImg.set({
-          flipX: flipX,
-          top: top,
-          left: left,
-          scaleX: scaleX,
-          scaleY: scaleY,
-          aCoords: aCoords,
-          angle: angle,
-          ...glassesEditOptions,
-        });
-
-        canvas.add(item);
-        canvas.setActiveObject(item);
-        canvas.renderAll();
+        item = oImg.set({ flipX: glassFlip, top: top, left: left });
       }
-    });
-  };
 
-  const flipGlasses = () => {
-    let activeGlasses = canvas.getActiveObjects();
-    let currentGlasses = activeGlasses[0];
-    const { aCoords, flipX } = currentGlasses;
+      canvas.add(item);
+    });
+  }
+
+  flipGlasses() {
+
+    const { canvas, glassFlip } = this.state;
+    const { aCoords } = canvas.item(0);
 
     /* is aCoords actually required? */
-    const item = currentGlasses.set({ flipX: !flipX, aCoords: aCoords });
-    canvas.remove(currentGlasses);
+    const item = canvas.item(0).set({ flipX: !glassFlip, aCoords: aCoords });
+    canvas.remove(canvas.item(0));
     canvas.add(item);
-    canvas.setActiveObject(item);
-    canvas.renderAll();
+    this.setState({
+      glassFlip: !glassFlip
+    });
+  }
 
-    setGlassesFlip(!glassFlip);
-  };
+  search() {
+    this.setState({ uploadedImageFile: null });
+    const { collection, id } = this.state;
+    this.updateBg(collection, id);
+  }
 
-  const search = () => {
-    setUploadedImageFile(null);
-    updateBg(collection, id);
-  };
-
-  const isMobile = () => {
+  isMobile() {
     const { width } = window.screen;
     return width <= MOBILE_MAX_WIDTH;
-  };
+  }
 
-  useEffect(() => {
-    document.addEventListener('mousemove', mouseMoveHandler);
+  componentDidMount() {
+    var canvas = new fabric.Canvas('c');
+    this.setState({ canvas: canvas });
+    const { width } = window.screen;
 
-    let newCanvas = new fabric.Canvas('c');
-    const { width, height } = window.screen;
+    fabric.Image.fromURL(default_lastpunk, (img, isError) => {
 
-    let resizeRatio;
-
-    fabric.Image.fromURL(default_background, (img, isError) => {
-      if (isMobile()) {
-        resizeRatio = calculateAspectRatioFit(
-          img.width,
-          img.height,
-          width,
-          height * MOBILERESIZERATIO
-        );
-
+      if (this.isMobile()) {
         img.set({
           top: 0,
           left: 0,
-          scaleX: resizeRatio,
-          scaleY: resizeRatio,
+          scaleX: width/img.width,
+          scaleY: width/img.height,
         });
 
-        newCanvas.setDimensions({
-          width: resizeRatio * img.width,
-          height: resizeRatio * img.height,
-        });
+        canvas.setDimensions({ width: width, height: width });
       } else {
-        resizeRatio = calculateAspectRatioFit(
-          img.width,
-          img.height,
-          width * RESIZERATIO,
-          height * RESIZERATIO
-        );
-        img.set({
-          top: 0,
-          left: 0,
-          scaleX: resizeRatio,
-          scaleY: resizeRatio,
-        });
-        newCanvas.setDimensions({
-          width: resizeRatio * img.width,
-          height: resizeRatio * img.height,
-        });
+        canvas.setDimensions({ width: img.width, height: img.height });
       }
 
-      newCanvas.setBackgroundImage(img, newCanvas.renderAll.bind(newCanvas));
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+      this.renderGlasses(glassMap.get('glasses-rgb.svg'));
     });
+  }
 
-    newCanvas.hoverCursor = 'pointer';
+  downloadPng() {
 
-    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
-      oImg.on('selected', function () {
-        setActiveSelectedItem(oImg);
-      });
-      oImg.set(glassesEditOptions);
-      newCanvas.add(oImg);
-    });
+    const { canvas } = this.state;
+    const img = canvas.toDataURL("image/png");
 
-    setCanvas(newCanvas);
-  }, []);
-
-  useEffect(() => {
-    if (canvas) {
-      // temp state holder as state update race condition
-      let tempEyeDropperState = eyeDropperVisible;
-      let activeObjects = canvas.getActiveObjects();
-      let activeObject = activeObjects[0];
-
-      canvas.on('mouse:down', function (options) {
-        if (tempEyeDropperState) {
-          if (options.pointer) {
-            let ctx = canvas.getContext('2d');
-
-            // get the color array for the pixel under the mouse
-            var px = ctx.getImageData(
-              options.pointer.x,
-              options.pointer.y,
-              1,
-              1
-            ).data;
-
-            colorCursorRef.current.style.visibility = 'hidden';
-
-            setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-
-            addCustomGlasses(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-            //update eyedropper state
-            tempEyeDropperState = false;
-            setEyeDropperVisible(false);
-            if (activeObject) {
-              canvas.setActiveObject(activeObject);
-              setActiveSelectedItem(activeObject);
-            }
-          }
-        } else {
-          if (options.target) {
-            setActiveSelectedItem(options.target);
-          } else {
-            setActiveSelectedItem(null);
-          }
-        }
-      });
-
-      canvas.on('mouse:move', function (options) {
-        if (tempEyeDropperState && options.pointer) {
-          let ctx = canvas.getContext('2d');
-
-          // get the color array for the pixel under the mouse
-          var px = ctx.getImageData(
-            options.pointer.x,
-            options.pointer.y,
-            1,
-            1
-          ).data;
-
-          setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-        }
-      });
-    }
-  }, [eyeDropperVisible, canvas]);
-
-  const downloadCanvas = () => {
-    const img = canvas.toDataURL('image/png');
-
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = img;
-    link.download = 'nounify';
+    link.download = "nounify";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+  }
 
-  const updateBg = async (collection, value) => {
+  async updateBg(collection, value) {
+
+    const { canvas } = this.state;
     const { width } = window.screen;
 
-    // console.log(collection, value);
+    console.log(collection, value);
 
     if (collection === 'punks' && value === 10000) {
       alert(`not found`);
@@ -490,54 +256,55 @@ const Paint = () => {
     }
 
     try {
-      setLoading(true);
+
       const { url, options } = PFPService.fetchImg(`${collection}`, value);
       const response = await fetch(url, options);
 
-      let image_preview = not_found;
+      let image_preview = notfound;
 
       if (response.ok) {
         const { image_preview_url } = await response.json();
         image_preview = image_preview_url;
       }
 
-      setBgUrl(image_preview);
 
-      fabric.Image.fromURL(
-        image_preview,
-        (img, isError) => {
-          if (isError) {
-            console.log('error is found', image_preview);
-          }
+      this.setState({
+        bgUrl: image_preview
+      });
 
-          if (isMobile()) {
-            img.set({
-              top: 0,
-              left: 0,
-              scaleX: width / img.width,
-              scaleY: width / img.height,
-            });
+      fabric.Image.fromURL(image_preview, (img, isError) => {
 
-            canvas.setDimensions({ width: width, height: width });
-          } else {
-            canvas.setDimensions({ width: img.width, height: img.height });
-          }
+        if (isError) {
+          console.log("error is found", image_preview);
+        }
 
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-          setLoading(false);
-        },
-        { crossOrigin: 'anonymous' }
-      );
-    } catch (error) {
+        if (this.isMobile()) {
+          img.set({
+            top: 0,
+            left: 0,
+            scaleX: width/img.width,
+            scaleY: width/img.height,
+          });
+
+          canvas.setDimensions({ width: width, height: width });
+        } else {
+          canvas.setDimensions({ width: img.width, height: img.height });
+        }
+
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+      },{ crossOrigin: 'anonymous' });
+    } catch(error) {
       console.log(error);
-      setLoading(false);
     }
-  };
+  }
 
-  const uploadImageFile = (image) => {
-    setUploadedImageFile(image);
-    setBgUrl(image);
+  uploadImageFile = (image) => {
+    this.setState({
+      uploadedImageFile: image,
+      bgUrl: image,
+    });
 
+    const { canvas } = this.state;
     const { width, height } = window.screen;
     try {
       fabric.Image.fromURL(
@@ -549,12 +316,12 @@ const Paint = () => {
 
           let resizeRatio;
 
-          if (isMobile()) {
+          if (this.isMobile()) {
             resizeRatio = calculateAspectRatioFit(
               img.width,
               img.height,
               width,
-              height * MOBILERESIZERATIO
+              height * 0.6
             );
             img.set({
               top: 0,
@@ -571,8 +338,8 @@ const Paint = () => {
             resizeRatio = calculateAspectRatioFit(
               img.width,
               img.height,
-              width * RESIZERATIO,
-              height * RESIZERATIO
+              width * 0.6,
+              height * 0.6
             );
             img.set({
               top: 0,
@@ -595,199 +362,65 @@ const Paint = () => {
     }
   };
 
-  const resetGlassesPosition = () => {
+  resetGlassesPosition = () => {
+    const { canvas } = this.state;
+
     fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
-      canvas.getObjects().forEach((obj) => {
-        canvas.remove(obj);
-      });
-
-      oImg.on('selected', function () {
-        setActiveSelectedItem(oImg);
-      });
-
-      oImg.set(glassesEditOptions);
-
-      canvas.add(oImg);
-      canvas.setActiveObject(oImg);
-      canvas.renderAll();
-    });
-  };
-
-  const addGlasses = () => {
-    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
-      oImg.on('selected', function () {
-        setActiveSelectedItem(oImg);
-      });
-
-      oImg.set(glassesEditOptions);
-
-      canvas.add(oImg);
-      canvas.setActiveObject(oImg);
-      canvas.renderAll();
-    });
-  };
-
-  const removeGlasses = () => {
-    canvas.getActiveObjects().forEach((obj) => {
-      canvas.remove(obj);
-    });
-  };
-
-  const addCustomGlasses = (color) => {
-    let svgString = GlassesSvgString(color);
-
-    // let blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    let blob = new File([svgString], 'tempSvg.svg', { type: 'image/svg+xml' });
-
-    // let url = URL.createObjectURL(blob);
-    let url = (window.URL ? URL : window.webkitURL).createObjectURL(blob);
-
-    let activeGlasses = canvas.getActiveObjects();
-    let oldGlasses;
-
-    oldGlasses = activeGlasses[0];
-
-    if (canvas.getActiveObjects().length > 0) {
-      oldGlasses = activeGlasses[0];
-    } else {
-      oldGlasses = canvas.item(0);
-    }
-
-    const { top, left, scaleX, scaleY, flipX, angle, aCoords } = oldGlasses;
-
-    fabric.Image.fromURL(url, (oImg) => {
-      canvas.remove(oldGlasses);
 
       let item = oImg;
+      if (canvas.item(0)) {
 
-      item = oImg.set({
-        flipX: flipX,
-        top: top,
-        left: left,
-        scaleX: scaleX,
-        scaleY: scaleY,
-        angle: angle,
-        aCoords: aCoords,
-        ...glassesEditOptions,
-      });
+        canvas.remove(canvas.item(0));
 
-      item.on('selected', function () {
-        setActiveSelectedItem(item);
-      });
+      }
 
       canvas.add(item);
-      canvas.setActiveObject(item);
-      canvas.renderAll();
     });
-  };
 
-  const mouseMoveHandler = (e) => {
-    setCursorPosition({ x: e.clientX, y: e.clientY });
-  };
+  }
 
-  const activateEyeDropper = () => {
-    setEyeDropperVisible(true);
-    colorCursorRef.current.style.visibility = 'visible';
-  };
+  render() {
 
-  useEffect(() => {
-    if (loading) {
-      const switchImage = setInterval(() => {
-        setLoadingIcon(
-          glassesArray[Math.floor(Math.random() * glassesArray.length)]
-        );
-      }, 250);
-      return () => {
-        clearInterval(switchImage);
-      };
-    }
-  }, [loading]);
-
-  return (
-    <CanvasWrapper>
-      {loading && (
-        <LoadingOverlay>
-          <LoadingContent>
-            {`Loading...`}
-            <img alt="loading" src={loadingIcon} />
-          </LoadingContent>
-        </LoadingOverlay>
-      )}
-      <EyedropperTool
-        cursorPosition={cursorPosition}
-        eyeDropperVisible={eyeDropperVisible}
-        customRgbColor={customRgbColor}
-        ref={colorCursorRef}
-      />
-
-      <ZDiv>
-        <Search
-          search={() => search()}
-          collection={(collection) => onCollectionChange(collection)}
-          id={(value) => onIdChange(value)}
-          uploadImageFile={uploadImageFile}
-        />
-      </ZDiv>
-
-      <ContentWrapper>
+    return (
+      <CanvasWrapper>
+        <ZDiv>
+          <Search search={() => this.search()} collection={(collection) => this.onCollectionChange(collection)} id={(value) => this.onIdChange(value)}/>
+        </ZDiv>
+        <ContentWrapper>
         <PaintToolWrapper>
           <PaintCanvasWrapper>
             <CanvasContainer>
               <PaintCanvas id="c"></PaintCanvas>
             </CanvasContainer>
             <ButtonContainer>
-              <ButtonFlip onClick={() => downloadCanvas()}>
+              <ButtonFlip onClick={() => this.downloadPng()}>
                 <i className="gg-software-download"></i>&nbsp;&nbsp;Save as
               </ButtonFlip>
+              <FileUploader uploadImageFile={this.uploadImageFile} />
             </ButtonContainer>
           </PaintCanvasWrapper>
           <ToolWrapper>
-            <Palette
-              activeSelectedItem={activeSelectedItem}
-              canvas={canvas}
-              chooseColor={(filename) => switchGlasses(filename)}
-              resetGlassesPosition={() => resetGlassesPosition()}
-              addCustomGlasses={addCustomGlasses}
-              customRgbColor={customRgbColor}
-            />
+            <Palette chooseColor={(filename) => this.switchGlasses(filename)} resetGlassesPosition={() => this.resetGlassesPosition()}/>
             <FlipWrapper>
-              <ColorSelectors
-                canvas={canvas}
-                activateEyeDropper={activateEyeDropper}
-                flipGlasses={flipGlasses}
-                removeGlasses={removeGlasses}
-                setCustomRgbColor={setCustomRgbColor}
-                customRgbColor={customRgbColor}
-                addCustomGlasses={addCustomGlasses}
-                activeSelectedItem={activeSelectedItem}
-                // eyeDropperVisible={eyeDropperVisible}
-              />
-              <>
-                <Divider />
-                <IconButton
-                  ButtonIcon={CgEditFlipH}
-                  buttonText={'Flip Image'}
-                  clickEvent={flipBg}
-                />
-                <IconButton
-                  ButtonIcon={IoDuplicateOutline}
-                  buttonText={'Add Glasses'}
-                  clickEvent={addGlasses}
-                />
-                <IconButton
-                  ButtonIcon={BsTrash}
-                  buttonText={'Reset Glasses'}
-                  clickEvent={resetGlassesPosition}
-                />
-              </>
+              <div onClick={() => this.flipBg()}>
+                <ButtonHover buttonText="Flip Image" />
+              </div>
+              <div onClick={() => this.flipGlasses()}>
+                <ButtonHover buttonText="Flip Glasses" />
+              </div>
             </FlipWrapper>
           </ToolWrapper>
         </PaintToolWrapper>
         {/* Drag n Drop only shown on Desktop */}
-        <DragAndDropSection uploadImageFile={uploadImageFile} />
-      </ContentWrapper>
-    </CanvasWrapper>
-  );
-};
+        <DragAndDropSection uploadImageFile={this.uploadImageFile} /> 
+        </ContentWrapper>
+      </CanvasWrapper>
+    )
+  }
+}
 
 export default Paint;
+
+function calculateAspectRatioFit(srcWidth, srcHeight, maxWidth, maxHeight) {
+  return Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+}

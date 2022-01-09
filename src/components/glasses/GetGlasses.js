@@ -34,23 +34,4 @@ glassesMap.set('glasses-teal.svg', teal);
 glassesMap.set('glasses-yellow-dark.svg', yellowDark);
 glassesMap.set('glasses-yellow.svg', yellow);
 
-export const glassesArray = [
-  beige,
-  black,
-  blueGreen,
-  blue,
-  darkPink,
-  gray,
-  green,
-  orange,
-  pink,
-  redEye,
-  red,
-  rgb,
-  skyBlue,
-  teal,
-  yellowDark,
-  yellow,
-];
-
 export default glassesMap;
