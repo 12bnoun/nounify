@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from 'react';
+import styled from 'styled-components';
 
-const Main = styled("div")`
+const Main = styled('div')`
   font-family: sans-serif;
 `;
 
-const DropDownContainer = styled("div")`
-  width: 8.0em;
+const DropDownContainer = styled('div')`
+  width: 8em;
   margin: 0 auto;
   cursor: pointer;
   user-select: none; /* supported by Chrome and Opera */
@@ -16,7 +16,7 @@ const DropDownContainer = styled("div")`
   -ms-user-select: none; /* Internet Explorer/Edge */
 `;
 
-const DropDownHeader = styled("div")`
+const DropDownHeader = styled('div')`
   padding: 0.8em 1em 0.8em 1em;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
   font-weight: 500;
@@ -25,14 +25,14 @@ const DropDownHeader = styled("div")`
   display: flex;
 `;
 
-const DropDownListContainer = styled("div")`
+const DropDownListContainer = styled('div')`
   position: absolute;
   z-index: 100;
-  width: 8.0em;
+  width: 8em;
   font-family: 'Space Mono', monospace;
 `;
 
-const DropDownList = styled("ul")`
+const DropDownList = styled('ul')`
   padding: 0;
   margin: 0;
   /*padding-left: 1em;*/
@@ -47,7 +47,7 @@ const DropDownList = styled("ul")`
   }
 `;
 
-const ListItem = styled("li")`
+const ListItem = styled('li')`
   list-style: none;
   padding-left: 1em;
   padding-top: 0.4em;
@@ -59,31 +59,34 @@ const ListItem = styled("li")`
   }
 `;
 
-const options = ["Punks", "Toadz", "BAYC", "Creature", "Groupies", "Metahero", "Coolcats", "Deadfellas", "Doodles"];
-
-export default function DropDown(props) {
+export default function DropDown({
+  onCollectionChange,
+  options,
+  selectedOption,
+  setSelectedOption,
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
 
   const toggling = () => setIsOpen(!isOpen);
 
-  const onOptionClicked = value => () => {
+  const onOptionClicked = (value) => () => {
     setSelectedOption(value);
     setIsOpen(false);
-    props.onCollectionChange(value);
+    onCollectionChange(value);
   };
 
   return (
     <Main>
       <DropDownContainer>
         <DropDownHeader onClick={toggling}>
-          {selectedOption || "Punks"}&nbsp;<i className="gg-chevron-down"></i>
+          {selectedOption}
+          <i className="gg-chevron-down"></i>
         </DropDownHeader>
         {isOpen && (
           <DropDownListContainer>
             <DropDownList>
-              {options.map(option => (
-                <ListItem onClick={onOptionClicked(option)} key={Math.random()}>
+              {options.map((option, index) => (
+                <ListItem onClick={onOptionClicked(option)} key={index}>
                   {option}
                 </ListItem>
               ))}
