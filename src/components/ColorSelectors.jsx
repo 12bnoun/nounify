@@ -101,14 +101,14 @@ const ColorSelectors = ({
   return (
     <>
       {/* Eyedropper only available on Desktop */}
-      {window.innerWidth > 768 && (
+      {/* {window.innerWidth > 768 && (
         <IconButton
           ButtonIcon={BsEyedropper}
           buttonText={'EyeDropper'}
           clickEvent={activateEyeDropper}
           disabled={activeSelectedItem ? false : true}
         />
-      )}
+      )} */}
 
       {!colorPaletteVisibility && (
         <ColorButton
