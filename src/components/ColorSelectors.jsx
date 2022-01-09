@@ -1,29 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ButtonHover from './ButtonHover';
 import styled from 'styled-components';
 import { BsEyedropper } from 'react-icons/bs';
 import { IoColorPaletteOutline } from 'react-icons/io5';
+import { BsTrash } from 'react-icons/bs';
+import { CgEditFlipH } from 'react-icons/cg';
 import { ChromePicker } from 'react-color';
+import IconButton from './IconButton';
 
-const ColorOptionsContainer = styled.div`
-  height: auto;
-  width: 180px;
-  border-radius: 10px;
-  background: white;
-  border: 1px solid #dbb6c8;
-  margin: 10px 0px 10px 0px;
-  padding: 10px;
-  @media screen and (max-width: 480px) {
-    width: 100%;
-    border: 0px;
-    border-radius: 0px;
-    height: auto;
-  }
+const ButtonText = styled.p`
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+  margin-left: 5px;
 `;
 
-const ButtonWrapper = styled.div``;
-
-const ColorButton = styled.div`
+const ColorButton = styled.button`
   font-size: 13px;
   font-weight: 200;
   letter-spacing: 1px;
@@ -32,10 +23,10 @@ const ColorButton = styled.div`
   border: 1px solid #dbb6c8;
   cursor: pointer;
   position: relative;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgb(0, 0, 0, 0);
   display: flex;
   margin-top: 10px;
-
+  align-items: center;
   &:after {
     content: '';
     background-color: #f6eff7;
@@ -52,20 +43,18 @@ const ColorButton = styled.div`
     top: 0px;
     left: 0px;
   }
-`;
-
-const Cover = styled.div`
-      position: fixed,
-      top: 0px,
-      right: 0px,
-      bottom: 0px,
-      left: 0px,
+  &:hover {
+    background-color: #f6eff7;
+  }
+  &:disabled {
+    pointer-events: none;
+  }
 `;
 
 const Popover = styled.div`
-      position: absolute,
-      zIndex: 2,
-    `;
+  position: absolute,
+  zIndex: 2,
+`;
 
 function ClickedOutsidePalette(ref, setColorPaletteVisibility) {
   useEffect(() => {
@@ -95,6 +84,7 @@ const ColorSelectors = ({
   setCustomRgbColor,
   customRgbColor,
   addCustomGlasses,
+  activeSelectedItem,
 }) => {
   const [colorPaletteVisibility, setColorPaletteVisibility] = useState(false);
 
@@ -108,49 +98,53 @@ const ColorSelectors = ({
     // setColorPaletteVisibility(false);
   };
 
-  const customColorHover = (color) => {
-    let newColor = `rgb(${color.rgb.r},${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`;
-    setCustomRgbColor(newColor);
-  };
-
   return (
     <>
-      <ColorOptionsContainer>
-        <span>Set Custom Color</span>
-        <ButtonWrapper>
-          <div onClick={(e) => activateEyeDropper(e)}>
-            <ColorButton buttonText="Eyedropper">
-              <BsEyedropper />
-              <span>EyeDropper</span>
-            </ColorButton>
-          </div>
-          <div onClick={() => setColorPaletteVisibility(true)}>
-            <ColorButton buttonText="Color Picker">
-              <IoColorPaletteOutline />
-              <span>Palette</span>
-            </ColorButton>
-          </div>
-        </ButtonWrapper>
-        {colorPaletteVisibility && (
-          <Popover ref={paletteRef}>
-            {/* <Cover onClick={() => setColorPaletteVisibility(false)} /> */}
-            <ChromePicker
-              color={customRgbColor}
-              disableAlpha={true}
-              // onChange={(color) => customColorHover(color)}
-              onChangeComplete={(color) => setCustomColor(color)}
-            />
-          </Popover>
-        )}
-      </ColorOptionsContainer>
+      {/* Eyedropper only available on Desktop */}
+      {window.innerWidth > 768 && (
+        <IconButton
+          ButtonIcon={BsEyedropper}
+          buttonText={'EyeDropper'}
+          clickEvent={activateEyeDropper}
+          disabled={activeSelectedItem ? false : true}
+        />
+      )}
 
-      <div onClick={() => flipGlasses()}>
-        <ButtonHover buttonText="Flip Glasses" />
-      </div>
-      {canvas.getObjects().length > 1 && (
-        <div onClick={() => removeGlasses()}>
-          <ButtonHover buttonText="Remove Glasses" />
-        </div>
+      {!colorPaletteVisibility && (
+        <ColorButton
+          disabled={activeSelectedItem ? false : true}
+          onClick={() => setColorPaletteVisibility(true)}
+        >
+          <IoColorPaletteOutline size={20} />
+          <ButtonText>Palette</ButtonText>
+        </ColorButton>
+      )}
+
+      {colorPaletteVisibility && (
+        <Popover ref={paletteRef}>
+          {/* <Cover onClick={() => setColorPaletteVisibility(false)} /> */}
+          <ChromePicker
+            color={customRgbColor}
+            disableAlpha={true}
+            // onChange={(color) => customColorHover(color)}
+            onChangeComplete={(color) => setCustomColor(color)}
+          />
+        </Popover>
+      )}
+
+      <IconButton
+        ButtonIcon={CgEditFlipH}
+        buttonText={'Flip Glasses'}
+        clickEvent={flipGlasses}
+        disabled={activeSelectedItem ? false : true}
+      />
+      {canvas && canvas.getObjects().length > 1 && (
+        <IconButton
+          ButtonIcon={BsTrash}
+          buttonText={'Remove Glasses'}
+          clickEvent={removeGlasses}
+          disabled={activeSelectedItem ? false : true}
+        />
       )}
     </>
   );

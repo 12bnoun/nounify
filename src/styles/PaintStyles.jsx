@@ -5,7 +5,7 @@ const PaintCanvas = styled.canvas`
 `;
 
 const ButtonFlip = styled.button`
-  background: #4B34DD;
+  background: #4b34dd;
   padding: 10px 20px;
   margin-top: 20px;
   cursor: pointer;
@@ -24,7 +24,7 @@ const ButtonFlip = styled.button`
     /*background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)*/
   }
 
-  @media screen and (max-width:480px) {
+  @media screen and (max-width: 480px) {
     margin-left: 20px;
     margin-bottom: 20px;
   }
@@ -46,12 +46,11 @@ const PaintToolWrapper = styled.div`
 const ToolWrapper = styled.div`
   margin-left: 20px;
   @media (max-width: 768px) {
-    margin-left: 5px;
+    margin-left: 0px;
   }
 `;
 
 const PaintCanvasWrapper = styled.div`
-  margin: auto;
   justify-content: center;
 `;
 
@@ -71,12 +70,11 @@ const CanvasContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  
 `;
 
 const ButtonFlipE = styled.div`
   background: #f6eff7;
-  background: #4B34DD;
+  background: #4b34dd;
   margin-top: 15px;
   cursor: pointer;
   display: flex;
@@ -96,10 +94,10 @@ const ButtonFlipE = styled.div`
     background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
   }
 
-  @media screen and (max-width:480px) {
+  @media screen and (max-width: 480px) {
     background: #e0c3fc;
   }
-`
+`;
 const ButtonContainer = styled.div`
   display: flex;
 `;
@@ -121,5 +119,5 @@ export {
   ButtonFlipE,
   ButtonContainer,
   ContentWrapper,
-  CanvasContainer
-}
+  CanvasContainer,
+};

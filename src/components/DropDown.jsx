@@ -85,8 +85,8 @@ export default function DropDown({
         {isOpen && (
           <DropDownListContainer>
             <DropDownList>
-              {options.map((option) => (
-                <ListItem onClick={onOptionClicked(option)} key={Math.random()}>
+              {options.map((option, index) => (
+                <ListItem onClick={onOptionClicked(option)} key={index}>
                   {option}
                 </ListItem>
               ))}

@@ -13,7 +13,7 @@ const DragContainer = styled.div`
   border-width: 2px;
   text-align: center;
   &:hover {
-    background-color: #E8E8E8;
+    background-color: #e8e8e8;
     cursor: pointer;
   }
   @media (max-width: 768px) {
@@ -38,7 +38,8 @@ const DragAndDropSection = ({ uploadImageFile }) => {
   return (
     <DragContainer {...getRootProps({ className: 'dropzone' })}>
       <input {...getInputProps()} />
-      <span>Drag 'n' drop images here or click to upload</span><br/>
+      <span>Drag 'n' drop image here or click to upload</span>
+      <br />
       <em>(Only .jpg, .png, .jpeg images accepted)</em>
     </DragContainer>
   );

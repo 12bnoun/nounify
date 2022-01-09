@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import paletteMap from './PaletteMap.js';
 
 const PaletteWrapper = styled.div`
-  height: 200px;
+  height: auto;
   width: 200px;
   border-radius: 10px;
   background: white;
@@ -81,14 +81,16 @@ const CustomSection = styled.div`
 `;
 
 const PaletteHeader = styled.div`
-  height: 40px;
+  height: auto;
+  text-align: center;
+  padding: 5px 0px 5px 0px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   background: #f6eff7;
   display: flex;
   justify-content: center;
   align-items: center;
-
+  position: relative;
   @media screen and (max-width: 480px) {
     justify-content: flex-start;
     padding-left: 20px;
@@ -102,34 +104,12 @@ const PaletteBody = styled.div`
   flex-wrap: wrap;
 `;
 
-const ButtonFlip = styled.button`
-  background: #4b34dd;
-  padding: 5px 10px 5px 10px;
-  margin-left: 30px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-family: 'Overpass', sans-serif;
-  border: 0px;
-  border-radius: 25px;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  /*border: 1px solid props => props.color ? "#e0c3fc" : "#dbb6c8" };*/
-  &:hover {
-    /*background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);*/
-    /*background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)*/
-  }
-`;
-
-const DimOverlay = styled.div`
+const InactiveOverlay = styled.div`
   position: absolute;
-  height: 160px;
-  width: 200px;
-  display: block;
-  z-index: 999;
-  background-color: rgba(0, 0, 0, 0.25);
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 0px 0px 10px 10px;
+
   @media screen and (max-width: 768px) {
     position: absolute;
     height: 100px;
@@ -164,65 +144,51 @@ const Palette = ({
   addCustomGlasses,
   customRgbColor,
 }) => {
-  const customColorSelector = (e) => {
-    // let ctx = canvas.getContext("2d");
-    // // get the current mouse position
-    // var mouse = canvas.getPointer(e.e);
-    // var x = parseInt(mouse.x);
-    // var y = parseInt(mouse.y);
-    // // get the color array for the pixel under the mouse
-    // var px = ctx.getImageData(x, y, 1, 1).data;
-    // // report that pixel data
-    // console.log('Pixel color: At [' + x + ' / ' + y + ']: Red/Green/Blue/Alpha = [' + px[0] + ' / ' + px[1] + ' / ' + px[2] + ' / ' + px[3] + ']')
-    // const eyeDropper = new window.EyeDropper();
-    // let controller = new AbortController();
-    // try {
-    //   const result = await eyeDropper.open({ signal: controller.signal });
-    //   setCustomRgbColor(result.sRGBHex);
-    //   return result.sRGBHex;
-    // } catch (e) {
-    //   return null;
-    // }
-  };
+  const [dimOverlayHeight, setDimOverlayHeight] = useState({
+    width: 0,
+    height: 0,
+  });
+
+  const dimOverlayRef = useRef();
+  const paletteRef = useRef();
+
+  useEffect(() => {
+    if (paletteRef) {
+      setDimOverlayHeight({
+        height: paletteRef.current.clientHeight,
+        width: paletteRef.current.clientWidth,
+      });
+    }
+  }, [paletteRef]);
 
   return (
     <div>
-      {!activeSelectedItem && (
-        <PaletteWrapper>
-          <PaletteHeader>{'Select Glasses to Edit'}</PaletteHeader>
-          <DimOverlay />
-          <PaletteBody>
-            <ColorCovered chooseColor={chooseColor} />
-            <CustomSection>
-              <CustomColorContainer
-                key={9999}
-                onClick={() => addCustomGlasses(customRgbColor)}
-              >
-                {`Custom`}
-                <CustomColor color={customRgbColor} />
-              </CustomColorContainer>
-            </CustomSection>
-          </PaletteBody>
-        </PaletteWrapper>
-      )}
-      {activeSelectedItem && (
-        <PaletteWrapper>
-          <PaletteHeader>{'Edit Glasses'}</PaletteHeader>
-          <PaletteBody>
-            <ColorCovered chooseColor={chooseColor} />
-            <CustomSection>
-              <CustomColorContainer
-                key={9999}
-                onClick={() => addCustomGlasses(customRgbColor)}
-              >
-                {`Custom`}
-                <CustomColor color={customRgbColor} />
-              </CustomColorContainer>
-            </CustomSection>
-          </PaletteBody>
-          {/* <ButtonFlip onClick={() => resetGlassesPosition()}>Reset</ButtonFlip> */}
-        </PaletteWrapper>
-      )}
+      <PaletteWrapper>
+        <PaletteHeader>{'Edit Glasses'}</PaletteHeader>
+        {!activeSelectedItem && (
+          <InactiveOverlay
+            ref={dimOverlayRef}
+            dimensions={dimOverlayHeight}
+            style={{
+              height: dimOverlayHeight.height,
+              width: dimOverlayHeight.width,
+            }}
+          />
+        )}
+        <PaletteBody ref={paletteRef}>
+          <ColorCovered chooseColor={chooseColor} />
+          <CustomSection>
+            <CustomColorContainer
+              key={9999}
+              onClick={() => addCustomGlasses(customRgbColor)}
+            >
+              {`Custom`}
+              <CustomColor color={customRgbColor} />
+            </CustomColorContainer>
+          </CustomSection>
+        </PaletteBody>
+      </PaletteWrapper>
+      {/* )} */}
     </div>
   );
 };

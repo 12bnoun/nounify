@@ -1,36 +1,51 @@
 import React, { forwardRef } from 'react';
+import styled from 'styled-components';
+
+const CursorContainer = styled.div`
+  visibility: hidden;
+  position: fixed;
+  margin-left: 15px;
+  pointer-events: none;
+  z-index: 999999;
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const ColorSwatch = styled.div`
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+  margin-left: 5px;
+  border-radius: 50%;
+`;
 
 const EyedropperTool = (
   { cursorPosition, eyeDropperVisible, customRgbColor },
   ref
 ) => {
   return (
-    <div
+    <CursorContainer
       ref={ref}
-      className="custom-color-cursor"
       style={{
         left: `${cursorPosition.x}px`,
         top: `${cursorPosition.y}px`,
-        visibility: 'hidden',
-        position: 'fixed',
-        marginLeft: '20px',
-        pointerEvents: 'none',
-        zIndex: 999999,
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
       }}
     >
-      {eyeDropperVisible ? 'Click to Select: ' : 'Hover Image to Select'}
+      {eyeDropperVisible && 'Click Image '}
       {eyeDropperVisible && (
-        <div
+        <ColorSwatch
           style={{
-            display: 'inline-block',
-            height: '15px',
-            width: '15px',
             backgroundColor: `${customRgbColor}`,
           }}
         />
       )}
-    </div>
+    </CursorContainer>
   );
 };
 

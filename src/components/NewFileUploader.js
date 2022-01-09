@@ -1,34 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 
-const Button = styled.button`
-  @media screen and (max-width: 480px) {
-    margin-left: 20px;
-    margin-bottom: 20px;
-  }
-  @media (max-width: 768px) {
-    background: #4b34dd;
-    padding: 10px 20px;
-    margin-top: 20px;
-    margin-left: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    font-family: 'Overpass', sans-serif;
-    border: 0px;
-    padding-right: 20px;
-    border-radius: 25px;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    /*border: 1px solid props => props.color ? "#e0c3fc" : "#dbb6c8" };*/
-    &:hover {
-      /*background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);*/
-      /*background-image: linear-gradient(120deg, #B2ABF4 50%, #e0c3fc 50%)*/
-    }
-  }
-`;
-
 const SearchButton = styled.div`
   width: 160px;
   border-bottom: 5px solid black;
@@ -42,7 +14,8 @@ const SearchButton = styled.div`
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   @media screen and (max-width: 768px) {
-    width: 0px;
+    width: auto;
+    margin-right: 10px;
   }
 `;
 
@@ -85,12 +58,6 @@ const UploadWrapper = styled.div`
   }
 `;
 
-const FileName = styled.p`
-  padding: 0px;
-  margin: 0px;
-  font-size: 1rem;
-`;
-
 const acceptedFileTypes = ['image/jpg', 'image/jpeg', 'image/png'];
 
 const NewFileUploader = ({ uploadImageFile }) => {
@@ -105,19 +72,7 @@ const NewFileUploader = ({ uploadImageFile }) => {
 
   return (
     <>
-      {/* <Button onClick={() => hiddenFileInput.current.click()}>
-        Upload Image
-        <input
-          type="file"
-          ref={hiddenFileInput}
-          onChange={(e) => userImage(e)}
-          style={{ display: 'none' }}
-          accept="image/*"
-        />
-      </Button> */}
-      <UploadWrapper>
-        {/* <FileName>No file selected</FileName> */}
-      </UploadWrapper>
+      <UploadWrapper></UploadWrapper>
       <SearchButton>
         <FloatB onClick={() => hiddenFileInput.current.click()}>
           <i className="gg-software-upload"></i>&nbsp;

@@ -12,6 +12,7 @@ const Search = styled.input`
   background: #f0f8ff;
   width: 200px;
   padding-left: 10px;
+
   @media screen and (max-width: 786px) {
     width: 54vw;
     font-size: 21px;
@@ -121,19 +122,13 @@ const SearchGroup = ({ search, collection, id, uploadImageFile }) => {
             <Search
               onChange={(event) => id(event.target.value)}
               placeholder="token id"
+              type="number"
             />
             <SearchButton>
               <FloatB onClick={() => search()}>search</FloatB>
             </SearchButton>
           </>
         )}
-        {/* <Search
-          onChange={(event) => id(event.target.value)}
-          placeholder="token id"
-        />
-        <SearchButton>
-          <FloatB onClick={() => search()}>search</FloatB>
-        </SearchButton> */}
       </SearchWrapper>
     </div>
   );
