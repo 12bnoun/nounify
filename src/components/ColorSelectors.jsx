@@ -85,6 +85,7 @@ const ColorSelectors = ({
   customRgbColor,
   addCustomGlasses,
   activeSelectedItem,
+  eyeDropperVisible,
 }) => {
   const [colorPaletteVisibility, setColorPaletteVisibility] = useState(false);
 
@@ -100,11 +101,17 @@ const ColorSelectors = ({
 
   return (
     <>
-      {/* Eyedropper only available on Desktop */}
-      {window.innerWidth > 768 && (
+      {window.innerWidth > 768 ? (
         <IconButton
           ButtonIcon={BsEyedropper}
           buttonText={'EyeDropper'}
+          clickEvent={activateEyeDropper}
+          disabled={activeSelectedItem ? false : true}
+        />
+      ) : (
+        <IconButton
+          ButtonIcon={BsEyedropper}
+          buttonText={eyeDropperVisible ? 'Tap Image to Select' : 'EyeDropper'}
           clickEvent={activateEyeDropper}
           disabled={activeSelectedItem ? false : true}
         />

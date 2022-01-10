@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../App.css';
 import styled from 'styled-components';
 import { fabric } from 'fabric';
@@ -65,9 +65,11 @@ const Divider = styled.hr`
 
 const LoadingOverlay = styled.div`
   position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  margin-top: -30px;
+  // margin-top: -30px;
   padding: 0px;
   background-color: rgba(0, 0, 0, 0.33);
   z-index: 999999999;
@@ -76,7 +78,7 @@ const LoadingOverlay = styled.div`
   align-items: center;
   overflow: hidden;
   @media (max-width: 768px) {
-    margin-top: -30px;
+    // margin-top: -30px;
     overflow: hidden;
   }
 `;
@@ -117,7 +119,9 @@ const Paint = () => {
   const [loading, setLoading] = useState(false);
   const [loadingIcon, setLoadingIcon] = useState(redGlasses);
 
+  const canvasRef = useRef(null);
   const colorCursorRef = useRef();
+  const canvasContainerRef = useRef();
 
   const RESIZERATIO = 0.55;
   const MOBILERESIZERATIO = 0.65;
@@ -346,9 +350,9 @@ const Paint = () => {
   };
 
   useEffect(() => {
-    document.addEventListener('mousemove', mouseMoveHandler);
+    // fabric.js event handlers made me do it this ugly way :(
 
-    let newCanvas = new fabric.Canvas('c');
+    let newCanvas = new fabric.Canvas(canvasRef.current);
     const { width, height } = window.screen;
 
     let resizeRatio;
@@ -396,6 +400,7 @@ const Paint = () => {
     });
 
     newCanvas.hoverCursor = 'pointer';
+    newCanvas.selection = false;
 
     fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
       oImg.on('selected', function () {
@@ -407,66 +412,6 @@ const Paint = () => {
 
     setCanvas(newCanvas);
   }, []);
-
-  useEffect(() => {
-    if (canvas) {
-      // temp state holder as state update race condition
-      let tempEyeDropperState = eyeDropperVisible;
-      let activeObjects = canvas.getActiveObjects();
-      let activeObject = activeObjects[0];
-
-      canvas.on('mouse:down', function (options) {
-        if (tempEyeDropperState) {
-          if (options.pointer) {
-            let ctx = canvas.getContext('2d');
-
-            // get the color array for the pixel under the mouse
-            var px = ctx.getImageData(
-              options.pointer.x,
-              options.pointer.y,
-              1,
-              1
-            ).data;
-
-            colorCursorRef.current.style.visibility = 'hidden';
-
-            setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-
-            addCustomGlasses(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-            //update eyedropper state
-            tempEyeDropperState = false;
-            setEyeDropperVisible(false);
-            if (activeObject) {
-              canvas.setActiveObject(activeObject);
-              setActiveSelectedItem(activeObject);
-            }
-          }
-        } else {
-          if (options.target) {
-            setActiveSelectedItem(options.target);
-          } else {
-            setActiveSelectedItem(null);
-          }
-        }
-      });
-
-      canvas.on('mouse:move', function (options) {
-        if (tempEyeDropperState && options.pointer) {
-          let ctx = canvas.getContext('2d');
-
-          // get the color array for the pixel under the mouse
-          var px = ctx.getImageData(
-            options.pointer.x,
-            options.pointer.y,
-            1,
-            1
-          ).data;
-
-          setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
-        }
-      });
-    }
-  }, [eyeDropperVisible, canvas]);
 
   const downloadCanvas = () => {
     const img = canvas.toDataURL('image/png');
@@ -481,8 +426,6 @@ const Paint = () => {
 
   const updateBg = async (collection, value) => {
     const { width } = window.screen;
-
-    // console.log(collection, value);
 
     if (collection === 'punks' && value === 10000) {
       alert(`not found`);
@@ -633,62 +576,190 @@ const Paint = () => {
     });
   };
 
-  const addCustomGlasses = (color) => {
-    let svgString = GlassesSvgString(color);
+  const addCustomGlasses = useCallback(
+    (color) => {
+      let svgString = GlassesSvgString(color);
 
-    // let blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    let blob = new File([svgString], 'tempSvg.svg', { type: 'image/svg+xml' });
+      // let blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      let blob = new File([svgString], 'tempSvg.svg', {
+        type: 'image/svg+xml',
+      });
 
-    // let url = URL.createObjectURL(blob);
-    let url = (window.URL ? URL : window.webkitURL).createObjectURL(blob);
+      // let url = URL.createObjectURL(blob);
+      let url = (window.URL ? URL : window.webkitURL).createObjectURL(blob);
 
-    let activeGlasses = canvas.getActiveObjects();
-    let oldGlasses;
+      let activeGlasses = canvas.getActiveObjects();
+      let oldGlasses;
 
-    oldGlasses = activeGlasses[0];
-
-    if (canvas.getActiveObjects().length > 0) {
       oldGlasses = activeGlasses[0];
-    } else {
-      oldGlasses = canvas.item(0);
-    }
 
-    const { top, left, scaleX, scaleY, flipX, angle, aCoords } = oldGlasses;
+      if (canvas.getActiveObjects().length > 0) {
+        oldGlasses = activeGlasses[0];
+      } else {
+        oldGlasses = canvas.item(0);
+      }
 
-    fabric.Image.fromURL(url, (oImg) => {
-      canvas.remove(oldGlasses);
+      const { top, left, scaleX, scaleY, flipX, angle, aCoords } = oldGlasses;
 
-      let item = oImg;
+      fabric.Image.fromURL(url, (oImg) => {
+        canvas.remove(oldGlasses);
 
-      item = oImg.set({
-        flipX: flipX,
-        top: top,
-        left: left,
-        scaleX: scaleX,
-        scaleY: scaleY,
-        angle: angle,
-        aCoords: aCoords,
-        ...glassesEditOptions,
+        let item = oImg;
+
+        item = oImg.set({
+          flipX: flipX,
+          top: top,
+          left: left,
+          scaleX: scaleX,
+          scaleY: scaleY,
+          angle: angle,
+          aCoords: aCoords,
+          ...glassesEditOptions,
+        });
+
+        item.on('selected', function () {
+          setActiveSelectedItem(item);
+        });
+
+        canvas.add(item);
+        canvas.setActiveObject(item);
+        canvas.renderAll();
       });
-
-      item.on('selected', function () {
-        setActiveSelectedItem(item);
-      });
-
-      canvas.add(item);
-      canvas.setActiveObject(item);
-      canvas.renderAll();
-    });
-  };
-
-  const mouseMoveHandler = (e) => {
-    setCursorPosition({ x: e.clientX, y: e.clientY });
-  };
+    },
+    [canvas]
+  );
 
   const activateEyeDropper = () => {
     setEyeDropperVisible(true);
     colorCursorRef.current.style.visibility = 'visible';
   };
+
+  const onCanvasTouch = useCallback(
+    (options) => {
+      if (
+        canvasRef.current &&
+        canvasContainerRef.current.contains(options.target) &&
+        eyeDropperVisible
+      ) {
+        let rect = canvasRef.current.getBoundingClientRect();
+
+        let ctx = canvasRef.current.getContext('2d');
+
+        // get the color array for the pixel under the mouse
+        let position = {
+          x:
+            ((options.touches[0].clientX - rect.left) /
+              (rect.right - rect.left)) *
+            canvasRef.current.width,
+          y:
+            ((options.touches[0].clientY - rect.top) /
+              (rect.bottom - rect.top)) *
+            canvasRef.current.height,
+        };
+        // get the color array for the pixel under the mouse
+        let px = ctx.getImageData(position.x, position.y, 1, 1).data;
+        setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
+
+        // update glasses with the new color
+        addCustomGlasses(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
+        colorCursorRef.current.style.visibility = 'hidden';
+        setEyeDropperVisible(false);
+      }
+    },
+    [eyeDropperVisible, addCustomGlasses]
+  );
+
+  const onCanvasClick = useCallback(
+    (options) => {
+      if (
+        canvasRef.current &&
+        canvasContainerRef.current.contains(options.target) &&
+        eyeDropperVisible
+      ) {
+        let rect = canvasRef.current.getBoundingClientRect();
+
+        let ctx = canvasRef.current.getContext('2d');
+
+        // get the color array for the pixel under the mouse
+        let position = {
+          x:
+            ((options.clientX - rect.left) / (rect.right - rect.left)) *
+            canvasRef.current.width,
+          y:
+            ((options.clientY - rect.top) / (rect.bottom - rect.top)) *
+            canvasRef.current.height,
+        };
+
+        // get the color array for the pixel under the mouse
+        let px = ctx.getImageData(position.x, position.y, 1, 1).data;
+
+        setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
+
+        // update glasses with the new color
+        addCustomGlasses(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
+        colorCursorRef.current.style.visibility = 'hidden';
+        setEyeDropperVisible(false);
+      }
+    },
+    [eyeDropperVisible, addCustomGlasses]
+  );
+
+  const mouseMoveHandler = useCallback(
+    (e) => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+
+      if (canvasRef && eyeDropperVisible) {
+        let rect = canvasRef.current.getBoundingClientRect();
+
+        let ctx = canvasRef.current.getContext('2d');
+
+        // get the color array for the pixel under the mouse
+        let position = {
+          x:
+            ((e.clientX - rect.left) / (rect.right - rect.left)) *
+            canvasRef.current.width,
+          y:
+            ((e.clientY - rect.top) / (rect.bottom - rect.top)) *
+            canvasRef.current.height,
+        };
+
+        // get the color array for the pixel under the mouse
+        let px = ctx.getImageData(position.x, position.y, 1, 1).data;
+
+        setCustomRgbColor(`rgb(${px[0]}, ${px[1]}, ${px[2]}, ${px[3]})`);
+      }
+    },
+    [eyeDropperVisible]
+  );
+
+  useEffect(() => {
+    if (canvas) {
+      canvas.on('mouse:down', function (options) {
+        if (options.target) {
+          setActiveSelectedItem(options.target);
+        } else {
+          setActiveSelectedItem(null);
+        }
+      });
+
+      // adding stupid event listeners the awful way to override built-in events...thanks fabric.js
+      document.addEventListener('click', onCanvasClick);
+      document.addEventListener('touchstart', onCanvasTouch);
+      document.addEventListener('mousemove', mouseMoveHandler);
+
+      return () => {
+        document.removeEventListener('click', onCanvasClick);
+        document.removeEventListener('touchstart', onCanvasTouch);
+        document.removeEventListener('mousemove', mouseMoveHandler);
+      };
+    }
+  }, [
+    eyeDropperVisible,
+    canvas,
+    onCanvasClick,
+    mouseMoveHandler,
+    onCanvasTouch,
+  ]);
 
   useEffect(() => {
     if (loading) {
@@ -732,8 +803,8 @@ const Paint = () => {
       <ContentWrapper>
         <PaintToolWrapper>
           <PaintCanvasWrapper>
-            <CanvasContainer>
-              <PaintCanvas id="c"></PaintCanvas>
+            <CanvasContainer ref={canvasContainerRef}>
+              <PaintCanvas ref={canvasRef} id="c"></PaintCanvas>
             </CanvasContainer>
             <ButtonContainer>
               <ButtonFlip onClick={() => downloadCanvas()}>
@@ -760,7 +831,7 @@ const Paint = () => {
                 customRgbColor={customRgbColor}
                 addCustomGlasses={addCustomGlasses}
                 activeSelectedItem={activeSelectedItem}
-                // eyeDropperVisible={eyeDropperVisible}
+                eyeDropperVisible={eyeDropperVisible}
               />
               <>
                 <Divider />
