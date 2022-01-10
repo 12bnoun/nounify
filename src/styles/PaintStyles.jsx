@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 const PaintCanvas = styled.canvas`
   border: 1px solid green;
+  cursor: pointer;
 `;
 
 const ButtonFlip = styled.button`

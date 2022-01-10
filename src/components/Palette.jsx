@@ -164,7 +164,15 @@ const Palette = ({
   return (
     <div>
       <PaletteWrapper>
-        <PaletteHeader>{'Edit Glasses'}</PaletteHeader>
+        <PaletteHeader>
+          {window.innerWidth > 768
+            ? activeSelectedItem
+              ? 'Edit Glasses'
+              : 'Select Glasses'
+            : activeSelectedItem
+            ? 'Edit Glasses'
+            : 'Tap Glasses to Edit'}
+        </PaletteHeader>
         {!activeSelectedItem && (
           <InactiveOverlay
             ref={dimOverlayRef}
@@ -188,7 +196,6 @@ const Palette = ({
           </CustomSection>
         </PaletteBody>
       </PaletteWrapper>
-      {/* )} */}
     </div>
   );
 };
