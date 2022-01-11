@@ -101,6 +101,7 @@ const ButtonFlipE = styled.div`
 `;
 const ButtonContainer = styled.div`
   display: flex;
+  align-items: center;
 `;
 
 const ContentWrapper = styled.div`

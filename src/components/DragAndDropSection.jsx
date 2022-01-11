@@ -36,7 +36,7 @@ const DragAndDropSection = ({ uploadImageFile }) => {
   };
 
   return (
-    <DragContainer {...getRootProps({ className: 'dropzone' })}>
+    <DragContainer {...getRootProps()}>
       <input {...getInputProps()} />
       <span>Drag 'n' drop image here or click to upload</span>
       <br />

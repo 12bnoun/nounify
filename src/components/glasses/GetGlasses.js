@@ -1,5 +1,6 @@
 import beige from './glasses-beige.svg';
 import black from './glasses-black.svg';
+import blackfull from './glasses-black-full.svg';
 import blueGreen from './glasses-blue-green.svg';
 import blue from './glasses-blue.svg';
 import darkPink from './glasses-dark-pink.svg';
@@ -19,6 +20,7 @@ import yellow from './glasses-yellow.svg';
 const glassesMap = new Map();
 glassesMap.set('glasses-beige.svg', beige);
 glassesMap.set('glasses-black.svg', black);
+glassesMap.set('glasses-black-full.svg', blackfull);
 glassesMap.set('glasses-blue-green.svg', blueGreen);
 glassesMap.set('glasses-blue.svg', blue);
 glassesMap.set('glasses-dark-pink.svg', darkPink);
@@ -37,6 +39,7 @@ glassesMap.set('glasses-yellow.svg', yellow);
 export const glassesArray = [
   beige,
   black,
+  blackfull,
   blueGreen,
   blue,
   darkPink,

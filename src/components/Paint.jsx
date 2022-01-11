@@ -12,7 +12,7 @@ import Search from './SearchGroup';
 
 import IconButton from './IconButton.jsx';
 
-import default_background from './default.png';
+import default_background from './nyancat.jpg';
 import not_found from './notfound.png';
 
 import GlassesSvgString from './GlassesSvgString.jsx';
@@ -22,6 +22,8 @@ import DragAndDropSection from './DragAndDropSection.jsx';
 import { calculateAspectRatioFit } from '../utils/utils';
 import ColorSelectors from './ColorSelectors';
 import EyedropperTool from './EyedropperTool';
+
+import { useDropzone } from 'react-dropzone';
 
 import { BsTrash } from 'react-icons/bs';
 import { IoDuplicateOutline } from 'react-icons/io5';
@@ -90,6 +92,17 @@ const LoadingContent = styled.div`
   align-items: center;
   color: white;
   font-size: 2rem;
+`;
+
+const DragnDropText = styled.div`
+  display: flex;
+  font-size: 1rem;
+  margin: 20px 0px 0px 10px;
+  text-align: center;
+  line-height: 110%;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const MOBILE_MAX_WIDTH = 738;
@@ -403,12 +416,14 @@ const Paint = () => {
     newCanvas.hoverCursor = 'pointer';
     newCanvas.selection = false;
 
-    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
+    fabric.Image.fromURL(glassMap.get('glasses-sky-blue.svg'), (oImg) => {
       oImg.on('selected', function () {
         setActiveSelectedItem(oImg);
       });
       oImg.set(glassesEditOptions);
       newCanvas.add(oImg);
+      newCanvas.centerObject(oImg);
+      newCanvas.setActiveObject(oImg);
     });
 
     setCanvas(newCanvas);
@@ -540,7 +555,7 @@ const Paint = () => {
   };
 
   const resetGlassesPosition = () => {
-    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
+    fabric.Image.fromURL(glassMap.get('glasses-black.svg'), (oImg) => {
       canvas.getObjects().forEach((obj) => {
         canvas.remove(obj);
       });
@@ -558,7 +573,7 @@ const Paint = () => {
   };
 
   const addGlasses = () => {
-    fabric.Image.fromURL(glassMap.get('glasses-rgb.svg'), (oImg) => {
+    fabric.Image.fromURL(glassMap.get('glasses-black.svg'), (oImg) => {
       oImg.on('selected', function () {
         setActiveSelectedItem(oImg);
       });
@@ -779,8 +794,21 @@ const Paint = () => {
     }
   }, [loading]);
 
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: 'image/jpg, image/jpeg, image/png',
+    multiple: false,
+    onDropAccepted: (files) => checkFiles(files),
+  });
+
+  const checkFiles = (input) => {
+    let file = input[0];
+    if (file) {
+      uploadImageFile(URL.createObjectURL(file));
+    }
+  };
+
   return (
-    <CanvasWrapper>
+    <CanvasWrapper {...getRootProps()}>
       {loading && (
         <LoadingOverlay>
           <LoadingContent>
@@ -815,6 +843,11 @@ const Paint = () => {
               <ButtonFlip onClick={() => downloadCanvas()}>
                 <i className="gg-software-download"></i>&nbsp;&nbsp;Save as
               </ButtonFlip>
+              <DragnDropText>
+                Drag 'n' Drop
+                <br />
+                Image to Upload
+              </DragnDropText>
             </ButtonContainer>
           </PaintCanvasWrapper>
           <ToolWrapper>
@@ -860,7 +893,7 @@ const Paint = () => {
           </ToolWrapper>
         </PaintToolWrapper>
         {/* Drag n Drop only shown on Desktop */}
-        <DragAndDropSection uploadImageFile={uploadImageFile} />
+        {/* <DragAndDropSection uploadImageFile={uploadImageFile} /> */}
       </ContentWrapper>
     </CanvasWrapper>
   );
