@@ -112,6 +112,7 @@ const Paint = () => {
   // const [canvasDataURL, setCanvasDataURL] = useState(null);
   const [uploadedImageFile, setUploadedImageFile] = useState(null);
   const [activeSelectedItem, setActiveSelectedItem] = useState(null);
+  const [lastActiveGlasses, setLastActiveGlasses] = useState(null);
   const [eyeDropperVisible, setEyeDropperVisible] = useState(false);
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [customRgbColor, setCustomRgbColor] = useState('rgb(0, 0, 0)');
@@ -595,6 +596,8 @@ const Paint = () => {
 
       if (canvas.getActiveObjects().length > 0) {
         oldGlasses = activeGlasses[0];
+      } else if (lastActiveGlasses) {
+        oldGlasses = lastActiveGlasses;
       } else {
         oldGlasses = canvas.item(0);
       }
@@ -626,10 +629,12 @@ const Paint = () => {
         canvas.renderAll();
       });
     },
-    [canvas]
+    [canvas, lastActiveGlasses]
   );
 
   const activateEyeDropper = () => {
+    let activeGlasses = canvas.getActiveObjects();
+    setLastActiveGlasses(activeGlasses[0]);
     setEyeDropperVisible(true);
     colorCursorRef.current.style.visibility = 'visible';
   };
