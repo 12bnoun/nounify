@@ -17,7 +17,7 @@ import not_found from './notfound.png';
 
 import GlassesSvgString from './GlassesSvgString.jsx';
 
-import DragAndDropSection from './DragAndDropSection.jsx';
+// import DragAndDropSection from './DragAndDropSection.jsx';
 
 import { calculateAspectRatioFit } from '../utils/utils';
 import ColorSelectors from './ColorSelectors';
@@ -794,7 +794,7 @@ const Paint = () => {
     }
   }, [loading]);
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps } = useDropzone({
     accept: 'image/jpg, image/jpeg, image/png',
     multiple: false,
     onDropAccepted: (files) => checkFiles(files),

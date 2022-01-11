@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-
 const GlassesSvgString = (fillColor) => {
   //   const [fillColor, setFillColor] = useState('#ffffff');
   // Buffer.from(str, 'base64')
