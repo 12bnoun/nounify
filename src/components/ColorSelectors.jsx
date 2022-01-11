@@ -52,8 +52,11 @@ const ColorButton = styled.button`
 `;
 
 const Popover = styled.div`
-  position: absolute,
-  zIndex: 2,
+  position: absolute;
+  z-index: 2;
+  @media screen and (max-width: 768px) {
+    position: relative;
+  }
 `;
 
 function ClickedOutsidePalette(ref, setColorPaletteVisibility) {
