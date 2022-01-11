@@ -411,22 +411,22 @@ const Paint = () => {
       }
 
       newCanvas.setBackgroundImage(img, newCanvas.renderAll.bind(newCanvas));
-    });
 
-    newCanvas.hoverCursor = 'pointer';
-    newCanvas.selection = false;
+      newCanvas.hoverCursor = 'pointer';
+      newCanvas.selection = false;
 
-    fabric.Image.fromURL(glassMap.get('glasses-sky-blue.svg'), (oImg) => {
-      oImg.on('selected', function () {
-        setActiveSelectedItem(oImg);
+      fabric.Image.fromURL(glassMap.get('glasses-sky-blue.svg'), (oImg) => {
+        oImg.on('selected', function () {
+          setActiveSelectedItem(oImg);
+        });
+        oImg.set(glassesEditOptions);
+        newCanvas.add(oImg);
+        newCanvas.setActiveObject(oImg);
+        newCanvas.centerObject(oImg);
       });
-      oImg.set(glassesEditOptions);
-      newCanvas.add(oImg);
-      newCanvas.centerObject(oImg);
-      newCanvas.setActiveObject(oImg);
-    });
 
-    setCanvas(newCanvas);
+      setCanvas(newCanvas);
+    });
   }, []);
 
   const downloadCanvas = () => {
