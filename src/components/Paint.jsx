@@ -118,7 +118,7 @@ const Paint = () => {
   const [bgFlip, setBgFlip] = useState(false);
   const [canvas, setCanvas] = useState(null);
   const [glassFlip, setGlassesFlip] = useState(false);
-  const [collection, setCollection] = useState('UPLOAD');
+  const [collection, setCollection] = useState('CUSTOM');
   const [id, setId] = useState('1');
   const [bgUrl, setBgUrl] = useState(default_background);
   // const [downloadPng, setDownloadPng] = useState(false);
@@ -193,7 +193,7 @@ const Paint = () => {
     setCollection(collection);
     setUploadedImageFile(null);
 
-    if (collection !== 'UPLOAD') {
+    if (collection !== 'CUSTOM') {
       updateBg(collection, id);
     } else {
       const { width, height } = window.screen;
