@@ -92,7 +92,7 @@ const FloatB = styled.div`
 // }
 
 const options = [
-  'UPLOAD',
+  'CUSTOM',
   'Punks',
   'Toadz',
   'BAYC',
@@ -105,7 +105,7 @@ const options = [
 ];
 
 const SearchGroup = ({ search, collection, id, uploadImageFile }) => {
-  const [selectedOption, setSelectedOption] = useState('UPLOAD');
+  const [selectedOption, setSelectedOption] = useState('CUSTOM');
   return (
     <div>
       <SearchWrapper>
@@ -115,7 +115,7 @@ const SearchGroup = ({ search, collection, id, uploadImageFile }) => {
           selectedOption={selectedOption}
           setSelectedOption={setSelectedOption}
         />
-        {selectedOption === 'UPLOAD' ? (
+        {selectedOption === 'CUSTOM' ? (
           <NewFileUploader uploadImageFile={uploadImageFile} />
         ) : (
           <>
